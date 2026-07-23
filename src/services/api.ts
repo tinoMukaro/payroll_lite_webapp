@@ -63,6 +63,7 @@ export const payrollService = {
     request<PayrollRun>(`/payroll-runs/${id}/process`, { method: 'POST' }, token),
   payslips: (id: number, token: string) =>
     request<Payslip[]>(`/payroll-runs/${id}/payslips`, {}, token),
+  mine: (token: string) => request<Payslip[]>('/payslips/me', {}, token),
 }
 
 export const userService = {

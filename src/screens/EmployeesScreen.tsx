@@ -5,7 +5,7 @@ import { employeeService } from '../services/api'
 import type { Employee, EmployeeFormData, EmployeeStatus } from '../types'
 
 const emptyEmployee: EmployeeFormData = {
-  employeeNumber: '', firstName: '', lastName: '', email: '', jobTitle: '',
+  firstName: '', lastName: '', email: '', jobTitle: '',
   basicSalary: '', hireDate: '', status: 'ACTIVE',
 }
 
@@ -40,7 +40,6 @@ export function EmployeesScreen({ token }: { token: string }) {
       <button className="primary" onClick={() => setShowForm(!showForm)}>{showForm ? 'Close' : 'Add employee'}</button>
     </div>
     {showForm && <form className="panel form-grid" onSubmit={submit}>
-      <label>Employee number<input required value={form.employeeNumber} onChange={event => setForm({ ...form, employeeNumber: event.target.value })} /></label>
       <label>First name<input required value={form.firstName} onChange={event => setForm({ ...form, firstName: event.target.value })} /></label>
       <label>Last name<input required value={form.lastName} onChange={event => setForm({ ...form, lastName: event.target.value })} /></label>
       <label>Email<input required type="email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} /></label>
@@ -54,11 +53,12 @@ export function EmployeesScreen({ token }: { token: string }) {
     </form>}
     {!showForm && <ErrorNotice message={error} />}
     <div className="panel table-wrap"><table>
-      <thead><tr><th>Employee</th><th>Number</th><th>Job title</th><th>Status</th><th>Basic salary</th></tr></thead>
+      <thead><tr><th>Employee</th><th>Number</th><th>Job title</th><th>Status</th><th>Account</th><th>Basic salary</th></tr></thead>
       <tbody>{employees.map(employee => <tr key={employee.id}>
         <td><strong>{employee.firstName} {employee.lastName}</strong><small>{employee.email}</small></td>
         <td>{employee.employeeNumber}</td><td>{employee.jobTitle}</td>
         <td><span className={`badge ${employee.status.toLowerCase()}`}>{employee.status.replace('_', ' ')}</span></td>
+        <td><span className="badge">{employee.accountLinked ? 'Linked' : 'No account'}</span></td>
         <td>${Number(employee.basicSalary).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
       </tr>)}</tbody>
     </table>{!employees.length && <Empty text="No employees have been added yet." />}</div>

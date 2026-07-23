@@ -10,6 +10,7 @@ export interface User {
   lastName: string
   role: Role
   enabled?: boolean
+  employeeId?: number | null
 }
 
 export interface Employee {
@@ -22,10 +23,11 @@ export interface Employee {
   basicSalary: number
   hireDate: string
   status: EmployeeStatus
+  userId?: number | null
+  accountLinked: boolean
 }
 
 export interface EmployeeFormData {
-  employeeNumber: string
   firstName: string
   lastName: string
   email: string
@@ -48,19 +50,17 @@ export interface Payslip {
   id: number
   employeeNumber: string
   employeeName: string
+  payrollRunId: number
+  month: number
+  year: number
   basicSalary: number
+  grossSalary: number
+  nssaDeduction: number
+  payeDeduction: number
   totalDeductions: number
   netSalary: number
+  createdAt: string
 }
 
-export interface AuthResponse {
-  token: string
-  user: User
-}
-
-export interface RegisterRequest {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-}
+export interface AuthResponse { token: string; user: User }
+export interface RegisterRequest { firstName: string; lastName: string; email: string; password: string }

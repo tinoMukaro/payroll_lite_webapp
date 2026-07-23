@@ -17,13 +17,13 @@ const titles: Record<View, string> = {
   employees: 'Employees',
   payroll: 'Payroll runs',
   users: 'System users',
-  profile: 'My account',
+  profile: 'My payslips',
 }
 
 export function AppShell({ user, token, onLogout }: AppShellProps) {
   const [view, setView] = useState<View>(user.role === 'EMPLOYEE' ? 'profile' : 'dashboard')
   const navigation: [View, string][] = user.role === 'EMPLOYEE'
-    ? [['profile', 'My account']]
+    ? [['profile', 'My payslips']]
     : [
         ['dashboard', 'Overview'],
         ['employees', 'Employees'],
@@ -51,7 +51,7 @@ export function AppShell({ user, token, onLogout }: AppShellProps) {
       {view === 'employees' && <EmployeesScreen token={token} />}
       {view === 'payroll' && <PayrollScreen token={token} />}
       {view === 'users' && <UsersScreen token={token} />}
-      {view === 'profile' && <ProfileScreen user={user} />}
+      {view === 'profile' && <ProfileScreen user={user} token={token} />}
     </main>
   </div>
 }
