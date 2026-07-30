@@ -1,5 +1,5 @@
 export type Role = 'ADMIN' | 'HR' | 'EMPLOYEE'
-export type View = 'dashboard' | 'employees' | 'payroll' | 'users' | 'profile'
+export type View = 'dashboard' | 'employees' | 'payroll' | 'nssaRules' | 'users' | 'profile'
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
 export type CurrencyCode = 'USD' | 'ZWG'
@@ -60,7 +60,10 @@ export interface Payslip {
   currency: CurrencyCode
   basicSalary: number
   grossSalary: number
-  nssaDeduction: number
+  pensionableEarnings: number
+  employeeNssaContribution: number
+  employerNssaContribution: number
+  nssaRuleVersion: string
   payeDeduction: number
   totalDeductions: number
   netSalary: number
@@ -69,3 +72,25 @@ export interface Payslip {
 
 export interface AuthResponse { token: string; user: User }
 export interface RegisterRequest { firstName: string; lastName: string; email: string; password: string }
+export interface NssaRule {
+  id: number
+  version: string
+  currency: CurrencyCode
+  effectiveFrom: string
+  effectiveTo: string | null
+  employeeRate: number
+  employerRate: number
+  pensionableEarningsCeiling: number
+  active: boolean
+}
+
+export interface NssaRuleFormData {
+  version: string
+  currency: CurrencyCode
+  effectiveFrom: string
+  effectiveTo: string
+  employeeRatePercent: string
+  employerRatePercent: string
+  pensionableEarningsCeiling: string
+  active: boolean
+}

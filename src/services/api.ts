@@ -5,6 +5,8 @@ import type {
   CurrencyCode,
   PayrollRun,
   Payslip,
+  NssaRule,
+  NssaRuleFormData,
   RegisterRequest,
   User,
 } from '../types'
@@ -69,4 +71,24 @@ export const payrollService = {
 
 export const userService = {
   list: (token: string) => request<User[]>('/users', {}, token),
+}
+function nssaPayload(data: NssaRuleFormData) {
+  return {
+    version: data.version,
+    currency: data.currency,
+    effectiveFrom: data.effectiveFrom,
+    effectiveTo: data.effectiveTo || null,
+    employeeRate: Number(data.employeeRatePercent) / 100,
+    employerRate: Number(data.employerRatePercent) / 100,
+    pensionableEarningsCeiling: Number(data.pensionableEarningsCeiling),
+    active: data.active,
+  }
+}
+
+export const nssaRuleService = {
+  list: (token: string) => request<NssaRule[]>('/nssa-rules', {}, token),
+  create: (data: NssaRuleFormData, token: string) =>
+    request<NssaRule>('/nssa-rules', { method: 'POST', body: JSON.stringify(nssaPayload(data)) }, token),
+  update: (id: number, data: NssaRuleFormData, token: string) =>
+    request<NssaRule>(`/nssa-rules/${id}`, { method: 'PUT', body: JSON.stringify(nssaPayload(data)) }, token),
 }
