@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Empty, ErrorNotice, Stat } from '../components/ui'
 import { payrollService } from '../services/api'
 import type { Payslip, User } from '../types'
@@ -29,9 +29,10 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
   }, [token])
 
   const latest = payslips[0]
-  const yearToDate = useMemo(() => payslips
-    .filter(payslip => payslip.year === new Date().getFullYear())
-    .reduce((total, payslip) => total + Number(payslip.netSalary), 0), [payslips])
+  const latestCurrency = latest?.currency
+  const yearToDate = payslips
+    .filter(payslip => payslip.year === new Date().getFullYear() && payslip.currency === latestCurrency)
+    .reduce((total, payslip) => total + Number(payslip.netSalary), 0)
 
   return <>
     <section className="welcome employee-welcome">
@@ -41,8 +42,8 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
     <section className="stats">
       <Stat label="Available payslips" value={payslips.length} />
       <Stat label="Latest period" value={latest ? `${monthName(latest.month)} ${latest.year}` : '-'} />
-      <Stat label="Latest net pay" value={latest ? `$${money(latest.netSalary)}` : '-'} />
-      <Stat label={`${new Date().getFullYear()} net pay`} value={`$${money(yearToDate)}`} />
+      <Stat label="Latest net pay" value={latest ? `${latest.currency} ${money(latest.netSalary)}` : '-'} />
+      <Stat label={`${new Date().getFullYear()} net (${latestCurrency ?? 'currency'})`} value={`${latestCurrency ?? ''} ${money(yearToDate)}`} />
     </section>
     <ErrorNotice message={error} />
     <section className="panel table-wrap">
@@ -51,9 +52,9 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
         <table><thead><tr><th>Pay period</th><th>Gross pay</th><th>Deductions</th><th>Net pay</th><th>Generated</th></tr></thead>
           <tbody>{payslips.map(payslip => <tr key={payslip.id}>
             <td><strong>{monthName(payslip.month)} {payslip.year}</strong><small>Payslip #{payslip.id}</small></td>
-            <td>${money(payslip.grossSalary)}</td>
-            <td>${money(payslip.totalDeductions)}</td>
-            <td><strong>${money(payslip.netSalary)}</strong></td>
+            <td>{payslip.currency} {money(payslip.grossSalary)}</td>
+            <td>{payslip.currency} {money(payslip.totalDeductions)}</td>
+            <td><strong>{payslip.currency} {money(payslip.netSalary)}</strong></td>
             <td>{new Date(payslip.createdAt).toLocaleDateString()}</td>
           </tr>)}</tbody>
         </table>

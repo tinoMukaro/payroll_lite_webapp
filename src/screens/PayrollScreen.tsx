@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Empty, ErrorNotice } from '../components/ui'
 import { payrollService } from '../services/api'
-import type { PayrollRun, Payslip } from '../types'
+import type { CurrencyCode, PayrollRun, Payslip } from '../types'
 
 function monthName(month: number) {
   return new Date(2000, month - 1).toLocaleString('default', { month: 'long' })
@@ -12,6 +12,7 @@ export function PayrollScreen({ token }: { token: string }) {
   const [runs, setRuns] = useState<PayrollRun[]>([])
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [year, setYear] = useState(new Date().getFullYear())
+  const [currency, setCurrency] = useState<CurrencyCode>('USD')
   const [error, setError] = useState('')
   const [payslips, setPayslips] = useState<Payslip[] | null>(null)
   const [selectedRun, setSelectedRun] = useState<number | null>(null)
@@ -27,7 +28,7 @@ export function PayrollScreen({ token }: { token: string }) {
   async function createRun(event: FormEvent) {
     event.preventDefault()
     setError('')
-    try { await payrollService.create(month, year, token); loadRuns() }
+    try { await payrollService.create(month, year, currency, token); loadRuns() }
     catch (value) { setError(value instanceof Error ? value.message : 'Could not create payroll run') }
   }
 
@@ -51,12 +52,14 @@ export function PayrollScreen({ token }: { token: string }) {
         {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{monthName(index + 1)}</option>)}
       </select></label>
       <label>Year<input type="number" min="2000" value={year} onChange={event => setYear(Number(event.target.value))} /></label>
+      <label>Currency<select value={currency} onChange={event => setCurrency(event.target.value as CurrencyCode)}><option value="USD">USD</option><option value="ZWG">ZWG</option></select></label>
     </div><button className="primary">Create draft</button></form>
     <ErrorNotice message={error} />
     <div className="panel table-wrap"><table>
-      <thead><tr><th>Period</th><th>Status</th><th>Created</th><th>Processed</th><th></th></tr></thead>
+      <thead><tr><th>Period</th><th>Currency</th><th>Status</th><th>Created</th><th>Processed</th><th></th></tr></thead>
       <tbody>{runs.map(run => <tr key={run.id}>
         <td><strong>{monthName(run.month)} {run.year}</strong><small>Run #{run.id}</small></td>
+        <td><span className="badge">{run.currency}</span></td>
         <td><span className={`badge ${run.status.toLowerCase()}`}>{run.status}</span></td>
         <td>{new Date(run.createdAt).toLocaleDateString()}</td>
         <td>{run.processedAt ? new Date(run.processedAt).toLocaleDateString() : '-'}</td>
@@ -69,7 +72,7 @@ export function PayrollScreen({ token }: { token: string }) {
         <thead><tr><th>Employee</th><th>Basic salary</th><th>Deductions</th><th>Net salary</th></tr></thead>
         <tbody>{payslips.map(payslip => <tr key={payslip.id}>
           <td><strong>{payslip.employeeName}</strong><small>{payslip.employeeNumber}</small></td>
-          <td>${Number(payslip.basicSalary).toFixed(2)}</td><td>${Number(payslip.totalDeductions).toFixed(2)}</td><td><strong>${Number(payslip.netSalary).toFixed(2)}</strong></td>
+          <td>{payslip.currency} {Number(payslip.basicSalary).toFixed(2)}</td><td>{payslip.currency} {Number(payslip.totalDeductions).toFixed(2)}</td><td><strong>{payslip.currency} {Number(payslip.netSalary).toFixed(2)}</strong></td>
         </tr>)}</tbody>
       </table></div> : <Empty text="No payslips are available for this run." />}
     </div>}

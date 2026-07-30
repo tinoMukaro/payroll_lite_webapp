@@ -2,6 +2,7 @@ export type Role = 'ADMIN' | 'HR' | 'EMPLOYEE'
 export type View = 'dashboard' | 'employees' | 'payroll' | 'users' | 'profile'
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
+export type CurrencyCode = 'USD' | 'ZWG'
 
 export interface User {
   id: number
@@ -21,6 +22,7 @@ export interface Employee {
   email: string
   jobTitle: string
   basicSalary: number
+  salaryCurrency: CurrencyCode
   hireDate: string
   status: EmployeeStatus
   userId?: number | null
@@ -33,6 +35,7 @@ export interface EmployeeFormData {
   email: string
   jobTitle: string
   basicSalary: string
+  salaryCurrency: CurrencyCode
   hireDate: string
   status: EmployeeStatus
 }
@@ -42,6 +45,7 @@ export interface PayrollRun {
   month: number
   year: number
   status: PayrollStatus
+  currency: CurrencyCode
   createdAt: string
   processedAt: string | null
 }
@@ -53,6 +57,7 @@ export interface Payslip {
   payrollRunId: number
   month: number
   year: number
+  currency: CurrencyCode
   basicSalary: number
   grossSalary: number
   nssaDeduction: number

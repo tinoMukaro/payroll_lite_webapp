@@ -2,6 +2,7 @@ import type {
   AuthResponse,
   Employee,
   EmployeeFormData,
+  CurrencyCode,
   PayrollRun,
   Payslip,
   RegisterRequest,
@@ -54,10 +55,10 @@ export const employeeService = {
 
 export const payrollService = {
   list: (token: string) => request<PayrollRun[]>('/payroll-runs', {}, token),
-  create: (month: number, year: number, token: string) =>
+  create: (month: number, year: number, currency: CurrencyCode, token: string) =>
     request<PayrollRun>('/payroll-runs', {
       method: 'POST',
-      body: JSON.stringify({ month, year }),
+      body: JSON.stringify({ month, year, currency }),
     }, token),
   process: (id: number, token: string) =>
     request<PayrollRun>(`/payroll-runs/${id}/process`, { method: 'POST' }, token),
