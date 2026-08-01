@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Empty, ErrorNotice, Stat } from '../components/ui'
 import { PayslipLineItems } from '../components/PayslipLineItems'
+import { PayslipDownloadButton } from '../components/PayslipDownloadButton'
 import { payrollService } from '../services/api'
 import type { Payslip, User } from '../types'
 
@@ -50,8 +51,8 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
     <section className="panel table-wrap">
       <div className="panel-head payslip-heading"><div><h3>Your payslips</h3><p>Only payslips associated with your employee record are shown.</p></div></div>
       {loading ? <p className="loading-state">Loading your payslips...</p> : <>
-        <table><thead><tr><th>Pay period</th><th>Gross pay</th><th>Adjustments</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net pay</th><th>Generated</th></tr></thead>
-          <tbody>{payslips.map(payslip => <tr key={payslip.id}>
+        <table><thead><tr><th>Pay period</th><th>Gross pay</th><th>Adjustments</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net pay</th><th>Generated</th><th></th></tr></thead>
+          <tbody>{payslips.map(payslip => <tr key={payslip.id ?? `${payslip.year}-${payslip.month}`}>
             <td><strong>{monthName(payslip.month)} {payslip.year}</strong><small>Payslip #{payslip.id}</small></td>
             <td>{payslip.currency} {money(payslip.grossSalary)}</td>
             <td><PayslipLineItems currency={payslip.currency} items={payslip.lineItems ?? []} /></td>
@@ -59,7 +60,8 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
             <td>{payslip.currency} {money(payslip.payeDeduction)}<small>{payslip.payeRuleVersion}</small></td>
             <td>{payslip.currency} {money(payslip.totalDeductions)}</td>
             <td><strong>{payslip.currency} {money(payslip.netSalary)}</strong></td>
-            <td>{new Date(payslip.createdAt).toLocaleDateString()}</td>
+            <td>{payslip.createdAt ? new Date(payslip.createdAt).toLocaleDateString() : '-'}</td>
+            <td className="row-actions"><PayslipDownloadButton payslip={payslip} token={token} /></td>
           </tr>)}</tbody>
         </table>
         {!payslips.length && !error && <Empty text="Your processed payslips will appear here." />}

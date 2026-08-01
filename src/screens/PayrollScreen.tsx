@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Empty, ErrorNotice } from '../components/ui'
 import { PayrollAdjustmentsPanel } from '../components/PayrollAdjustmentsPanel'
 import { PayslipLineItems } from '../components/PayslipLineItems'
+import { PayslipDownloadButton } from '../components/PayslipDownloadButton'
 import { payrollService } from '../services/api'
 import type { CurrencyCode, PayrollRun, Payslip } from '../types'
 
@@ -18,6 +19,7 @@ export function PayrollScreen({ token }: { token: string }) {
   const [error, setError] = useState('')
   const [payslips, setPayslips] = useState<Payslip[] | null>(null)
   const [selectedRun, setSelectedRun] = useState<number | null>(null)
+  const [isPreview, setIsPreview] = useState(false)
   const [adjustmentRun, setAdjustmentRun] = useState<PayrollRun | null>(null)
 
   const loadRuns = useCallback(() => {
@@ -38,15 +40,25 @@ export function PayrollScreen({ token }: { token: string }) {
   async function processRun(id: number) {
     if (!confirm('Process this payroll run for all active employees using its current adjustments?')) return
     setError('')
-    try { await payrollService.process(id, token); setAdjustmentRun(null); loadRuns() }
+    try { await payrollService.process(id, token); setAdjustmentRun(null); setSelectedRun(null); loadRuns() }
     catch (value) { setError(value instanceof Error ? value.message : 'Could not process payroll') }
   }
 
   async function viewPayslips(id: number) {
     setSelectedRun(id)
+    setIsPreview(false)
     setPayslips(null)
     try { setPayslips(await payrollService.payslips(id, token)) }
-    catch (value) { setError(value instanceof Error ? value.message : 'Could not load payslips') }
+    catch (value) { setPayslips([]); setError(value instanceof Error ? value.message : 'Could not load payslips') }
+  }
+
+  async function previewRun(id: number) {
+    setSelectedRun(id)
+    setIsPreview(true)
+    setPayslips(null)
+    setError('')
+    try { setPayslips(await payrollService.preview(id, token)) }
+    catch (value) { setPayslips([]); setError(value instanceof Error ? value.message : 'Could not preview payroll') }
   }
 
   return <>
@@ -66,15 +78,15 @@ export function PayrollScreen({ token }: { token: string }) {
         <td><span className={`badge ${run.status.toLowerCase()}`}>{run.status}</span></td>
         <td>{new Date(run.createdAt).toLocaleDateString()}</td>
         <td>{run.processedAt ? new Date(run.processedAt).toLocaleDateString() : '-'}</td>
-        <td className="row-actions">{run.status === 'DRAFT' && <><button onClick={() => setAdjustmentRun(run)}>Adjustments</button><button onClick={() => processRun(run.id)}>Process</button></>}<button onClick={() => viewPayslips(run.id)}>Payslips</button></td>
+        <td className="row-actions">{run.status === 'DRAFT' && <><button onClick={() => setAdjustmentRun(run)}>Adjustments</button><button onClick={() => previewRun(run.id)}>Preview</button><button onClick={() => processRun(run.id)}>Process</button></>}{run.status === 'PROCESSED' && <button onClick={() => viewPayslips(run.id)}>Payslips</button>}</td>
       </tr>)}</tbody>
     </table>{!runs.length && <Empty text="No payroll runs have been created." />}</div>
     {adjustmentRun && <PayrollAdjustmentsPanel key={adjustmentRun.id} run={adjustmentRun} token={token} onClose={() => setAdjustmentRun(null)} />}
     {selectedRun && <div className="panel">
-      <div className="panel-head"><div><h3>Payslips for run #{selectedRun}</h3><p>Salary snapshots generated during processing.</p></div><button className="secondary" onClick={() => setSelectedRun(null)}>Close</button></div>
+      <div className="panel-head"><div><h3>{isPreview ? 'Payroll preview' : 'Payslips'} for run #{selectedRun}</h3><p>{isPreview ? 'Review these calculations before processing. Nothing in this preview has been saved.' : 'Salary snapshots generated during processing.'}</p></div><button className="secondary" onClick={() => setSelectedRun(null)}>Close</button></div>
       {payslips === null ? <p className="muted">Loading...</p> : payslips.length ? <div className="table-wrap"><table>
-        <thead><tr><th>Employee</th><th>Gross</th><th>Adjustments</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net salary</th></tr></thead>
-        <tbody>{payslips.map(payslip => <tr key={payslip.id}>
+        <thead><tr><th>Employee</th><th>Gross</th><th>Adjustments</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net salary</th>{!isPreview && <th></th>}</tr></thead>
+        <tbody>{payslips.map(payslip => <tr key={payslip.id ?? `${payslip.employeeId}-${payslip.payrollRunId}`}>
           <td><strong>{payslip.employeeName}</strong><small>{payslip.employeeNumber}</small></td>
           <td>{payslip.currency} {Number(payslip.grossSalary).toFixed(2)}</td>
           <td><PayslipLineItems currency={payslip.currency} items={payslip.lineItems ?? []} /></td>
@@ -82,6 +94,7 @@ export function PayrollScreen({ token }: { token: string }) {
           <td>{payslip.currency} {Number(payslip.payeDeduction).toFixed(2)}<small>{payslip.payeRuleVersion}</small></td>
           <td>{payslip.currency} {Number(payslip.totalDeductions).toFixed(2)}</td>
           <td><strong>{payslip.currency} {Number(payslip.netSalary).toFixed(2)}</strong></td>
+          {!isPreview && <td className="row-actions"><PayslipDownloadButton payslip={payslip} token={token} /></td>}
         </tr>)}</tbody>
       </table></div> : <Empty text="No payslips are available for this run." />}
     </div>}

@@ -42,6 +42,17 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   return response.json() as Promise<T>
 }
 
+async function requestBlob(path: string, token: string): Promise<Blob> {
+  const response = await fetch(`${API_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({})) as ApiError
+    throw new Error(error.message ?? `Request failed (${response.status})`)
+  }
+  return response.blob()
+}
+
 export const authService = {
   login: (email: string, password: string) =>
     request<AuthResponse>('/auth/login', {
@@ -92,9 +103,13 @@ export const payrollService = {
     }, token),
   process: (id: number, token: string) =>
     request<PayrollRun>(`/payroll-runs/${id}/process`, { method: 'POST' }, token),
+  preview: (id: number, token: string) =>
+    request<Payslip[]>(`/payroll-runs/${id}/preview`, {}, token),
   payslips: (id: number, token: string) =>
     request<Payslip[]>(`/payroll-runs/${id}/payslips`, {}, token),
   mine: (token: string) => request<Payslip[]>('/payslips/me', {}, token),
+  downloadPayslip: (id: number, token: string) =>
+    requestBlob(`/payslips/${id}/pdf`, token),
 }
 
 export const payrollAdjustmentService = {
@@ -113,6 +128,10 @@ export const payrollAdjustmentService = {
 
 export const userService = {
   list: (token: string) => request<User[]>('/users', {}, token),
+  updateRole: (id: number, role: User['role'], token: string) =>
+    request<User>(`/users/${id}/role`, {
+      method: 'PATCH', body: JSON.stringify({ role }),
+    }, token),
 }
 function nssaPayload(data: NssaRuleFormData) {
   return {

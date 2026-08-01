@@ -53,7 +53,7 @@ export interface PayrollRun {
 }
 
 export interface Payslip {
-  id: number
+  id: number | null
   employeeId: number
   employeeNumber: string
   employeeName: string
@@ -78,7 +78,7 @@ export interface Payslip {
   additionalEarnings: number
   otherDeductions: number
   lineItems: PayslipLineItem[]
-  createdAt: string
+  createdAt: string | null
 }
 
 export interface PayrollAdjustment {
