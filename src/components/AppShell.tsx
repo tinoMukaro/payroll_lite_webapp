@@ -3,7 +3,7 @@ import type { User, View } from '../types'
 import { DashboardScreen } from '../screens/DashboardScreen'
 import { EmployeesScreen } from '../screens/EmployeesScreen'
 import { PayrollScreen } from '../screens/PayrollScreen'
-import { NssaRulesScreen } from '../screens/NssaRulesScreen'
+import { StatutorySettingsScreen } from '../screens/StatutorySettingsScreen'
 import { ProfileScreen } from '../screens/ProfileScreen'
 import { UsersScreen } from '../screens/UsersScreen'
 
@@ -17,7 +17,7 @@ const titles: Record<View, string> = {
   dashboard: 'Overview',
   employees: 'Employees',
   payroll: 'Payroll runs',
-  nssaRules: 'Statutory settings',
+  statutory: 'Statutory settings',
   users: 'System users',
   profile: 'My payslips',
 }
@@ -30,7 +30,7 @@ export function AppShell({ user, token, onLogout }: AppShellProps) {
         ['dashboard', 'Overview'],
         ['employees', 'Employees'],
         ['payroll', 'Payroll runs'],
-        ['nssaRules', 'Statutory settings'],
+        ['statutory', 'Statutory settings'],
         ...(user.role === 'ADMIN' ? [['users', 'Users'] as [View, string]] : []),
       ]
 
@@ -53,7 +53,7 @@ export function AppShell({ user, token, onLogout }: AppShellProps) {
       {view === 'dashboard' && <DashboardScreen token={token} user={user} onNavigate={setView} />}
       {view === 'employees' && <EmployeesScreen token={token} />}
       {view === 'payroll' && <PayrollScreen token={token} />}
-      {view === 'nssaRules' && <NssaRulesScreen token={token} />}
+      {view === 'statutory' && <StatutorySettingsScreen token={token} />}
       {view === 'users' && <UsersScreen token={token} />}
       {view === 'profile' && <ProfileScreen user={user} token={token} />}
     </main>

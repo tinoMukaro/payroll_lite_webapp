@@ -69,10 +69,14 @@ export function PayrollScreen({ token }: { token: string }) {
     {selectedRun && <div className="panel">
       <div className="panel-head"><div><h3>Payslips for run #{selectedRun}</h3><p>Salary snapshots generated during processing.</p></div><button className="secondary" onClick={() => setSelectedRun(null)}>Close</button></div>
       {payslips === null ? <p className="muted">Loading...</p> : payslips.length ? <div className="table-wrap"><table>
-        <thead><tr><th>Employee</th><th>Basic salary</th><th>Deductions</th><th>Net salary</th></tr></thead>
+        <thead><tr><th>Employee</th><th>Gross</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net salary</th></tr></thead>
         <tbody>{payslips.map(payslip => <tr key={payslip.id}>
           <td><strong>{payslip.employeeName}</strong><small>{payslip.employeeNumber}</small></td>
-          <td>{payslip.currency} {Number(payslip.basicSalary).toFixed(2)}</td><td>{payslip.currency} {Number(payslip.totalDeductions).toFixed(2)}</td><td><strong>{payslip.currency} {Number(payslip.netSalary).toFixed(2)}</strong></td>
+          <td>{payslip.currency} {Number(payslip.grossSalary).toFixed(2)}</td>
+          <td>{payslip.currency} {Number(payslip.employeeNssaContribution).toFixed(2)}<small>{payslip.nssaRuleVersion}</small></td>
+          <td>{payslip.currency} {Number(payslip.payeDeduction).toFixed(2)}<small>{payslip.payeRuleVersion}</small></td>
+          <td>{payslip.currency} {Number(payslip.totalDeductions).toFixed(2)}</td>
+          <td><strong>{payslip.currency} {Number(payslip.netSalary).toFixed(2)}</strong></td>
         </tr>)}</tbody>
       </table></div> : <Empty text="No payslips are available for this run." />}
     </div>}

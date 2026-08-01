@@ -7,6 +7,8 @@ import type {
   Payslip,
   NssaRule,
   NssaRuleFormData,
+  PayeTaxTable,
+  PayeTaxTableFormData,
   RegisterRequest,
   User,
 } from '../types'
@@ -91,4 +93,32 @@ export const nssaRuleService = {
     request<NssaRule>('/nssa-rules', { method: 'POST', body: JSON.stringify(nssaPayload(data)) }, token),
   update: (id: number, data: NssaRuleFormData, token: string) =>
     request<NssaRule>(`/nssa-rules/${id}`, { method: 'PUT', body: JSON.stringify(nssaPayload(data)) }, token),
+}
+
+function payePayload(data: PayeTaxTableFormData) {
+  return {
+    version: data.version,
+    currency: data.currency,
+    effectiveFrom: data.effectiveFrom,
+    effectiveTo: data.effectiveTo || null,
+    aidsLevyRate: Number(data.aidsLevyPercent) / 100,
+    active: data.active,
+    bands: data.bands.map(band => ({
+      lowerBound: Number(band.lowerBound),
+      upperBound: band.upperBound === '' ? null : Number(band.upperBound),
+      rate: Number(band.ratePercent) / 100,
+    })),
+  }
+}
+
+export const payeTaxTableService = {
+  list: (token: string) => request<PayeTaxTable[]>('/paye-tax-tables', {}, token),
+  create: (data: PayeTaxTableFormData, token: string) =>
+    request<PayeTaxTable>('/paye-tax-tables', {
+      method: 'POST', body: JSON.stringify(payePayload(data)),
+    }, token),
+  update: (id: number, data: PayeTaxTableFormData, token: string) =>
+    request<PayeTaxTable>(`/paye-tax-tables/${id}`, {
+      method: 'PUT', body: JSON.stringify(payePayload(data)),
+    }, token),
 }

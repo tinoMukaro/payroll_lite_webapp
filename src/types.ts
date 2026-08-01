@@ -1,5 +1,5 @@
 export type Role = 'ADMIN' | 'HR' | 'EMPLOYEE'
-export type View = 'dashboard' | 'employees' | 'payroll' | 'nssaRules' | 'users' | 'profile'
+export type View = 'dashboard' | 'employees' | 'payroll' | 'statutory' | 'users' | 'profile'
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
 export type CurrencyCode = 'USD' | 'ZWG'
@@ -65,6 +65,11 @@ export interface Payslip {
   employerNssaContribution: number
   nssaRuleVersion: string
   payeDeduction: number
+  taxableIncome: number
+  incomeTaxBeforeCredits: number
+  taxCreditsApplied: number
+  aidsLevy: number
+  payeRuleVersion: string
   totalDeductions: number
   netSalary: number
   createdAt: string
@@ -93,4 +98,38 @@ export interface NssaRuleFormData {
   employerRatePercent: string
   pensionableEarningsCeiling: string
   active: boolean
+}
+
+export interface PayeTaxBand {
+  id: number
+  lowerBound: number
+  upperBound: number | null
+  rate: number
+}
+
+export interface PayeTaxTable {
+  id: number
+  version: string
+  currency: CurrencyCode
+  effectiveFrom: string
+  effectiveTo: string | null
+  aidsLevyRate: number
+  active: boolean
+  bands: PayeTaxBand[]
+}
+
+export interface PayeTaxBandFormData {
+  lowerBound: string
+  upperBound: string
+  ratePercent: string
+}
+
+export interface PayeTaxTableFormData {
+  version: string
+  currency: CurrencyCode
+  effectiveFrom: string
+  effectiveTo: string
+  aidsLevyPercent: string
+  active: boolean
+  bands: PayeTaxBandFormData[]
 }
