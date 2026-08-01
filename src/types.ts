@@ -3,6 +3,7 @@ export type View = 'dashboard' | 'employees' | 'payroll' | 'statutory' | 'users'
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
 export type CurrencyCode = 'USD' | 'ZWG'
+export type PayrollAdjustmentType = 'EARNING' | 'DEDUCTION'
 
 export interface User {
   id: number
@@ -52,6 +53,7 @@ export interface PayrollRun {
 
 export interface Payslip {
   id: number
+  employeeId: number
   employeeNumber: string
   employeeName: string
   payrollRunId: number
@@ -72,7 +74,38 @@ export interface Payslip {
   payeRuleVersion: string
   totalDeductions: number
   netSalary: number
+  additionalEarnings: number
+  otherDeductions: number
+  lineItems: PayslipLineItem[]
   createdAt: string
+}
+
+export interface PayrollAdjustment {
+  id: number
+  payrollRunId: number
+  employeeId: number
+  employeeNumber: string
+  employeeName: string
+  type: PayrollAdjustmentType
+  description: string
+  amount: number
+  taxable: boolean
+  createdAt: string
+}
+
+export interface PayrollAdjustmentFormData {
+  employeeId: number
+  type: PayrollAdjustmentType
+  description: string
+  amount: number
+  taxable: boolean
+}
+
+export interface PayslipLineItem {
+  type: PayrollAdjustmentType
+  description: string
+  amount: number
+  taxable: boolean
 }
 
 export interface AuthResponse { token: string; user: User }

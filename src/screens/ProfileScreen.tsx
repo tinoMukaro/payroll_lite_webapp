@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Empty, ErrorNotice, Stat } from '../components/ui'
+import { PayslipLineItems } from '../components/PayslipLineItems'
 import { payrollService } from '../services/api'
 import type { Payslip, User } from '../types'
 
@@ -49,10 +50,11 @@ export function ProfileScreen({ user, token }: ProfileScreenProps) {
     <section className="panel table-wrap">
       <div className="panel-head payslip-heading"><div><h3>Your payslips</h3><p>Only payslips associated with your employee record are shown.</p></div></div>
       {loading ? <p className="loading-state">Loading your payslips...</p> : <>
-        <table><thead><tr><th>Pay period</th><th>Gross pay</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net pay</th><th>Generated</th></tr></thead>
+        <table><thead><tr><th>Pay period</th><th>Gross pay</th><th>Adjustments</th><th>NSSA</th><th>PAYE</th><th>Deductions</th><th>Net pay</th><th>Generated</th></tr></thead>
           <tbody>{payslips.map(payslip => <tr key={payslip.id}>
             <td><strong>{monthName(payslip.month)} {payslip.year}</strong><small>Payslip #{payslip.id}</small></td>
             <td>{payslip.currency} {money(payslip.grossSalary)}</td>
+            <td><PayslipLineItems currency={payslip.currency} items={payslip.lineItems ?? []} /></td>
             <td>{payslip.currency} {money(payslip.employeeNssaContribution)}</td>
             <td>{payslip.currency} {money(payslip.payeDeduction)}<small>{payslip.payeRuleVersion}</small></td>
             <td>{payslip.currency} {money(payslip.totalDeductions)}</td>

@@ -4,6 +4,8 @@ import type {
   EmployeeFormData,
   CurrencyCode,
   PayrollRun,
+  PayrollAdjustment,
+  PayrollAdjustmentFormData,
   Payslip,
   NssaRule,
   NssaRuleFormData,
@@ -69,6 +71,20 @@ export const payrollService = {
   payslips: (id: number, token: string) =>
     request<Payslip[]>(`/payroll-runs/${id}/payslips`, {}, token),
   mine: (token: string) => request<Payslip[]>('/payslips/me', {}, token),
+}
+
+export const payrollAdjustmentService = {
+  list: (payrollRunId: number, token: string) =>
+    request<PayrollAdjustment[]>(`/payroll-runs/${payrollRunId}/adjustments`, {}, token),
+  create: (payrollRunId: number, data: PayrollAdjustmentFormData, token: string) =>
+    request<PayrollAdjustment>(`/payroll-runs/${payrollRunId}/adjustments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token),
+  remove: (payrollRunId: number, adjustmentId: number, token: string) =>
+    request<void>(`/payroll-runs/${payrollRunId}/adjustments/${adjustmentId}`, {
+      method: 'DELETE',
+    }, token),
 }
 
 export const userService = {
