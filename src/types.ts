@@ -4,6 +4,7 @@ export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
 export type CurrencyCode = 'USD' | 'ZWG'
 export type PayrollAdjustmentType = 'EARNING' | 'DEDUCTION'
+export type PayItemSource = 'ONE_OFF' | 'RECURRING'
 
 export interface User {
   id: number
@@ -106,6 +107,34 @@ export interface PayslipLineItem {
   description: string
   amount: number
   taxable: boolean
+  source: PayItemSource
+}
+
+export interface RecurringPayItem {
+  id: number
+  employeeId: number
+  employeeNumber: string
+  employeeName: string
+  currency: CurrencyCode
+  type: PayrollAdjustmentType
+  description: string
+  amount: number
+  taxable: boolean
+  effectiveFrom: string
+  effectiveTo: string | null
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface RecurringPayItemFormData {
+  type: PayrollAdjustmentType
+  description: string
+  amount: string
+  taxable: boolean
+  effectiveFrom: string
+  effectiveTo: string
+  active: boolean
 }
 
 export interface AuthResponse { token: string; user: User }

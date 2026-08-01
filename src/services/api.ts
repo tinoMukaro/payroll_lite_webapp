@@ -12,6 +12,8 @@ import type {
   PayeTaxTable,
   PayeTaxTableFormData,
   RegisterRequest,
+  RecurringPayItem,
+  RecurringPayItemFormData,
   User,
 } from '../types'
 
@@ -56,6 +58,28 @@ export const employeeService = {
     request<Employee>('/employees', {
       method: 'POST',
       body: JSON.stringify({ ...data, basicSalary: Number(data.basicSalary) }),
+    }, token),
+}
+
+function recurringPayItemPayload(data: RecurringPayItemFormData) {
+  return {
+    ...data,
+    amount: Number(data.amount),
+    effectiveTo: data.effectiveTo || null,
+    taxable: data.type === 'EARNING' && data.taxable,
+  }
+}
+
+export const recurringPayItemService = {
+  list: (employeeId: number, token: string) =>
+    request<RecurringPayItem[]>(`/employees/${employeeId}/recurring-pay-items`, {}, token),
+  create: (employeeId: number, data: RecurringPayItemFormData, token: string) =>
+    request<RecurringPayItem>(`/employees/${employeeId}/recurring-pay-items`, {
+      method: 'POST', body: JSON.stringify(recurringPayItemPayload(data)),
+    }, token),
+  update: (employeeId: number, payItemId: number, data: RecurringPayItemFormData, token: string) =>
+    request<RecurringPayItem>(`/employees/${employeeId}/recurring-pay-items/${payItemId}`, {
+      method: 'PUT', body: JSON.stringify(recurringPayItemPayload(data)),
     }, token),
 }
 

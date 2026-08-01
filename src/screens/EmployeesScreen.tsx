@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Empty, ErrorNotice } from '../components/ui'
+import { RecurringPayItemsPanel } from '../components/RecurringPayItemsPanel'
 import { employeeService } from '../services/api'
 import type { CurrencyCode, Employee, EmployeeFormData, EmployeeStatus } from '../types'
 
@@ -14,6 +15,7 @@ export function EmployeesScreen({ token }: { token: string }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<EmployeeFormData>(emptyEmployee)
   const [error, setError] = useState('')
+  const [payItemEmployee, setPayItemEmployee] = useState<Employee | null>(null)
 
   const loadEmployees = useCallback(() => {
     employeeService.list(token).then(setEmployees).catch(value => setError(value.message))
@@ -56,14 +58,16 @@ export function EmployeesScreen({ token }: { token: string }) {
     </form>}
     {!showForm && <ErrorNotice message={error} />}
     <div className="panel table-wrap"><table>
-      <thead><tr><th>Employee</th><th>Number</th><th>Job title</th><th>Status</th><th>Account</th><th>Basic salary</th></tr></thead>
+      <thead><tr><th>Employee</th><th>Number</th><th>Job title</th><th>Status</th><th>Account</th><th>Basic salary</th><th></th></tr></thead>
       <tbody>{employees.map(employee => <tr key={employee.id}>
         <td><strong>{employee.firstName} {employee.lastName}</strong><small>{employee.email}</small></td>
         <td>{employee.employeeNumber}</td><td>{employee.jobTitle}</td>
         <td><span className={`badge ${employee.status.toLowerCase()}`}>{employee.status.replace('_', ' ')}</span></td>
         <td><span className="badge">{employee.accountLinked ? 'Linked' : 'No account'}</span></td>
         <td>{employee.salaryCurrency} {Number(employee.basicSalary).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+        <td className="row-actions"><button onClick={() => setPayItemEmployee(employee)}>Recurring items</button></td>
       </tr>)}</tbody>
     </table>{!employees.length && <Empty text="No employees have been added yet." />}</div>
+    {payItemEmployee && <RecurringPayItemsPanel key={payItemEmployee.id} employee={payItemEmployee} token={token} onClose={() => setPayItemEmployee(null)} />}
   </>
 }
