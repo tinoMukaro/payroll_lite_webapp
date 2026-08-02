@@ -1,75 +1,105 @@
-# React + TypeScript + Vite
+# Payroll Lite Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Release:** `1.0.0` | **Status:** V1 feature-complete for learning, demonstration, and local development
 
-Currently, two official plugins are available:
+Payroll Lite Web App is the React and TypeScript client for the Payroll Lite API. It provides focused workspaces for Administrators, HR staff, and Employees without introducing a heavy design system.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## V1 capabilities
 
-## React Compiler
+- Public registration and JWT login.
+- Role-aware navigation for `ADMIN`, `HR`, and `EMPLOYEE` users.
+- Employee creation and generated employee-number display.
+- Payroll run creation, preview, processing, and payslip review.
+- One-off and fixed recurring earnings and deductions.
+- NSSA and PAYE configuration screens for Admin and HR.
+- Admin user-role management with explicit save feedback.
+- Employee self-service access to their own payslips.
+- Secure PDF payslip downloads.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technology
 
-## Expanding the ESLint configuration
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Native Fetch API
+- ESLint
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js compatible with Vite 8.
+- npm.
+- Payroll Lite API running at `http://localhost:9090` unless overridden.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Local setup
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Install dependencies:
 
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Create the local frontend configuration:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+PowerShell:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+Copy-Item .env.example .env
 ```
+
+Bash:
+
+```bash
+cp .env.example .env
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+## Configuration
+
+The only V1 frontend variable is:
+
+```properties
+VITE_API_URL=http://localhost:9090/api
+```
+
+Vite embeds `VITE_` variables into the browser bundle. Never place database credentials, JWT signing secrets, passwords, or other private values in frontend environment files.
+
+The real `.env` is ignored by Git. Commit only `.env.example`.
+
+## Available scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Type-check and create the production bundle |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview the built production bundle locally |
+
+## Access model
+
+| Workspace | Main capabilities |
+| --- | --- |
+| Admin | Full payroll and employee access, statutory configuration, and user-role management |
+| HR | Employee and payroll management plus statutory configuration |
+| Employee | View and download only the employee's own payslips |
+
+Authorization is enforced by the API. Hiding a frontend screen is a usability measure and is not treated as a security boundary.
+
+## Related repository
+
+The backend API, complete endpoint documentation, domain rules, and bootstrap instructions are maintained in the [Payroll Lite API repository](https://github.com/tinoMukaro/payroll_lite).
+
+## V1 boundary
+
+This client is suitable for learning, demonstrations, and local development. It is not presented as a certified production payroll system. Review the backend README for statutory and operational limitations.
+
+## License
+
+No license has been declared yet. Add a `LICENSE` before distributing the project or accepting external contributions.
