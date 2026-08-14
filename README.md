@@ -13,6 +13,7 @@ Payroll Lite Web App is the React and TypeScript client for the Payroll Lite API
 - One-off and fixed recurring earnings and deductions.
 - NSSA and PAYE configuration screens for Admin and HR.
 - Admin user-role management with explicit save feedback.
+- Admin-only, filterable business audit trail.
 - Employee self-service access to their own payslips.
 - Secure PDF payslip downloads.
 
@@ -86,7 +87,7 @@ The real `.env` is ignored by Git. Commit only `.env.example`.
 
 | Workspace | Main capabilities |
 | --- | --- |
-| Admin | Full payroll and employee access, statutory configuration, and user-role management |
+| Admin | Full payroll and employee access, statutory configuration, user-role management, and audit history |
 | HR | Employee and payroll management plus statutory configuration |
 | Employee | View and download only the employee's own payslips |
 

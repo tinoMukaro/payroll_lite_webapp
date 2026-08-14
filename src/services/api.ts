@@ -1,4 +1,6 @@
 import type {
+  AuditEventFilters,
+  AuditEventPage,
   AuthResponse,
   Employee,
   EmployeeFormData,
@@ -19,8 +21,18 @@ import type {
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:9090/api'
 
-interface ApiError {
+interface ApiErrorPayload {
   message?: string
+}
+
+export class ApiRequestError extends Error {
+  readonly status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiRequestError'
+    this.status = status
+  }
 }
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
@@ -34,8 +46,8 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({})) as ApiError
-    throw new Error(error.message ?? `Request failed (${response.status})`)
+    const error = await response.json().catch(() => ({})) as ApiErrorPayload
+    throw new ApiRequestError(error.message ?? `Request failed (${response.status})`, response.status)
   }
 
   if (response.status === 204) return undefined as T
@@ -47,8 +59,8 @@ async function requestBlob(path: string, token: string): Promise<Blob> {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!response.ok) {
-    const error = await response.json().catch(() => ({})) as ApiError
-    throw new Error(error.message ?? `Request failed (${response.status})`)
+    const error = await response.json().catch(() => ({})) as ApiErrorPayload
+    throw new ApiRequestError(error.message ?? `Request failed (${response.status})`, response.status)
   }
   return response.blob()
 }
@@ -61,6 +73,7 @@ export const authService = {
     }),
   register: (data: RegisterRequest) =>
     request<User>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  me: (token: string) => request<User>('/auth/me', {}, token),
 }
 
 export const employeeService = {
@@ -133,6 +146,17 @@ export const userService = {
       method: 'PATCH', body: JSON.stringify({ role }),
     }, token),
 }
+
+export const auditService = {
+  search: (filters: AuditEventFilters, token: string) => {
+    const query = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') query.set(key, String(value))
+    })
+    return request<AuditEventPage>(`/audit-events?${query.toString()}`, {}, token)
+  },
+}
+
 function nssaPayload(data: NssaRuleFormData) {
   return {
     version: data.version,

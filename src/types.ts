@@ -1,10 +1,37 @@
 export type Role = 'ADMIN' | 'HR' | 'EMPLOYEE'
-export type View = 'dashboard' | 'employees' | 'payroll' | 'statutory' | 'users' | 'profile'
+export type View = 'dashboard' | 'employees' | 'payroll' | 'statutory' | 'users' | 'audit' | 'profile'
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'TERMINATED'
 export type PayrollStatus = 'DRAFT' | 'PROCESSED' | 'CANCELLED'
 export type CurrencyCode = 'USD' | 'ZWG'
 export type PayrollAdjustmentType = 'EARNING' | 'DEDUCTION'
 export type PayItemSource = 'ONE_OFF' | 'RECURRING'
+export type AuditAction =
+  | 'ADMIN_BOOTSTRAPPED'
+  | 'USER_REGISTERED'
+  | 'USER_ROLE_CHANGED'
+  | 'EMPLOYEE_CREATED'
+  | 'EMPLOYEE_UPDATED'
+  | 'EMPLOYEE_DELETED'
+  | 'NSSA_RULE_CREATED'
+  | 'NSSA_RULE_UPDATED'
+  | 'PAYE_TABLE_CREATED'
+  | 'PAYE_TABLE_UPDATED'
+  | 'RECURRING_PAY_ITEM_CREATED'
+  | 'RECURRING_PAY_ITEM_UPDATED'
+  | 'PAYROLL_RUN_CREATED'
+  | 'PAYROLL_RUN_PROCESSED'
+  | 'PAYROLL_ADJUSTMENT_CREATED'
+  | 'PAYROLL_ADJUSTMENT_DELETED'
+  | 'PAYSLIP_DOWNLOADED'
+export type AuditEntityType =
+  | 'USER'
+  | 'EMPLOYEE'
+  | 'NSSA_RULE'
+  | 'PAYE_TABLE'
+  | 'RECURRING_PAY_ITEM'
+  | 'PAYROLL_RUN'
+  | 'PAYROLL_ADJUSTMENT'
+  | 'PAYSLIP'
 
 export interface User {
   id: number
@@ -14,6 +41,38 @@ export interface User {
   role: Role
   enabled?: boolean
   employeeId?: number | null
+}
+
+export interface AuditEvent {
+  id: number
+  actorUserId: number | null
+  actorEmail: string | null
+  actorRole: Role | null
+  action: AuditAction
+  entityType: AuditEntityType
+  entityId: number | null
+  details: string | null
+  occurredAt: string
+}
+
+export interface AuditEventPage {
+  content: AuditEvent[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  first: boolean
+  last: boolean
+}
+
+export interface AuditEventFilters {
+  action?: AuditAction
+  entityType?: AuditEntityType
+  actorEmail?: string
+  from?: string
+  to?: string
+  page?: number
+  size?: number
 }
 
 export interface Employee {

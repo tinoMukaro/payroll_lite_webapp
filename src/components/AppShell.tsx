@@ -6,6 +6,7 @@ import { PayrollScreen } from '../screens/PayrollScreen'
 import { StatutorySettingsScreen } from '../screens/StatutorySettingsScreen'
 import { ProfileScreen } from '../screens/ProfileScreen'
 import { UsersScreen } from '../screens/UsersScreen'
+import { AuditLogScreen } from '../screens/AuditLogScreen'
 
 interface AppShellProps {
   user: User
@@ -19,6 +20,7 @@ const titles: Record<View, string> = {
   payroll: 'Payroll runs',
   statutory: 'Statutory settings',
   users: 'System users',
+  audit: 'Audit trail',
   profile: 'My payslips',
 }
 
@@ -31,7 +33,10 @@ export function AppShell({ user, token, onLogout }: AppShellProps) {
         ['employees', 'Employees'],
         ['payroll', 'Payroll runs'],
         ['statutory', 'Statutory settings'],
-        ...(user.role === 'ADMIN' ? [['users', 'Users'] as [View, string]] : []),
+        ...(user.role === 'ADMIN' ? [
+          ['users', 'Users'] as [View, string],
+          ['audit', 'Audit trail'] as [View, string],
+        ] : []),
       ]
 
   return <div className="app-shell">
@@ -55,6 +60,7 @@ export function AppShell({ user, token, onLogout }: AppShellProps) {
       {view === 'payroll' && <PayrollScreen token={token} />}
       {view === 'statutory' && <StatutorySettingsScreen token={token} />}
       {view === 'users' && <UsersScreen token={token} />}
+      {view === 'audit' && <AuditLogScreen token={token} />}
       {view === 'profile' && <ProfileScreen user={user} token={token} />}
     </main>
   </div>
