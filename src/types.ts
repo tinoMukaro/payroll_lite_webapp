@@ -8,6 +8,7 @@ export type PayItemSource = 'ONE_OFF' | 'RECURRING'
 export type AuditAction =
   | 'ADMIN_BOOTSTRAPPED'
   | 'USER_REGISTERED'
+  | 'INTERNAL_USER_CREATED'
   | 'USER_ROLE_CHANGED'
   | 'EMPLOYEE_CREATED'
   | 'EMPLOYEE_UPDATED'
@@ -41,6 +42,14 @@ export interface User {
   role: Role
   enabled?: boolean
   employeeId?: number | null
+}
+
+export interface InternalUserFormData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  role: 'ADMIN' | 'HR'
 }
 
 export interface AuditEvent {

@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Empty, ErrorNotice } from '../components/ui'
 import { userService } from '../services/api'
-import type { Role, User } from '../types'
+import type { InternalUserFormData, Role, User } from '../types'
+
+const emptyInternalUser: InternalUserFormData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  role: 'HR',
+}
 
 export function UsersScreen({ token }: { token: string }) {
   const [users, setUsers] = useState<User[]>([])
@@ -9,6 +17,26 @@ export function UsersScreen({ token }: { token: string }) {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [updatingId, setUpdatingId] = useState<number | null>(null)
+  const [internalUser, setInternalUser] = useState<InternalUserFormData>(emptyInternalUser)
+  const [creating, setCreating] = useState(false)
+
+  async function createInternalUser(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError('')
+    setMessage('')
+    setCreating(true)
+    try {
+      const created = await userService.createInternal(internalUser, token)
+      setUsers(current => [created, ...current])
+      setSelectedRoles(current => ({ ...current, [created.id]: created.role }))
+      setInternalUser({ ...emptyInternalUser })
+      setMessage(`${created.firstName} ${created.lastName} can now sign in as ${created.role}.`)
+    } catch (value) {
+      setError(value instanceof Error ? value.message : 'Could not create internal user')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   async function saveRole(user: User) {
     const role = selectedRoles[user.id] ?? user.role
@@ -38,7 +66,23 @@ export function UsersScreen({ token }: { token: string }) {
   return <>
     <div className="panel settings-intro">
       <h3>Account access</h3>
-      <p>Select a new role and save it. The system always keeps at least one administrator so access cannot be accidentally locked out.</p>
+      <p>Create internal HR or Admin accounts, or change access for an existing user. The system always keeps at least one administrator so access cannot be accidentally locked out.</p>
+    </div>
+    <div className="panel">
+      <div className="panel-head"><div>
+        <h3>Add internal user</h3>
+        <p>Employee accounts continue through employee registration. Internal users can sign in immediately with the initial password.</p>
+      </div></div>
+      <form className="form-grid internal-user-form" onSubmit={createInternalUser}>
+        <label>First name<input required value={internalUser.firstName} onChange={event => setInternalUser(current => ({ ...current, firstName: event.target.value }))} /></label>
+        <label>Last name<input required value={internalUser.lastName} onChange={event => setInternalUser(current => ({ ...current, lastName: event.target.value }))} /></label>
+        <label className="internal-email">Email<input required type="email" value={internalUser.email} onChange={event => setInternalUser(current => ({ ...current, email: event.target.value }))} /></label>
+        <label>Role<select value={internalUser.role} onChange={event => setInternalUser(current => ({ ...current, role: event.target.value as InternalUserFormData['role'] }))}>
+          <option value="HR">HR</option><option value="ADMIN">ADMIN</option>
+        </select></label>
+        <label className="internal-password">Initial password<input required type="password" minLength={8} autoComplete="new-password" value={internalUser.password} onChange={event => setInternalUser(current => ({ ...current, password: event.target.value }))} /></label>
+        <div className="form-actions"><button className="primary" disabled={creating} type="submit">{creating ? 'Creating...' : 'Create internal user'}</button></div>
+      </form>
     </div>
     <ErrorNotice message={error} />
     {message && <div className="notice">{message}</div>}

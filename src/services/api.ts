@@ -4,6 +4,7 @@ import type {
   AuthResponse,
   Employee,
   EmployeeFormData,
+  InternalUserFormData,
   CurrencyCode,
   PayrollRun,
   PayrollAdjustment,
@@ -141,6 +142,10 @@ export const payrollAdjustmentService = {
 
 export const userService = {
   list: (token: string) => request<User[]>('/users', {}, token),
+  createInternal: (data: InternalUserFormData, token: string) =>
+    request<User>('/users/internal', {
+      method: 'POST', body: JSON.stringify(data),
+    }, token),
   updateRole: (id: number, role: User['role'], token: string) =>
     request<User>(`/users/${id}/role`, {
       method: 'PATCH', body: JSON.stringify({ role }),
