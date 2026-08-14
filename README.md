@@ -62,6 +62,20 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+## Container image
+
+The multi-stage `Dockerfile` builds the TypeScript application with Node.js and serves
+only the generated static assets from Nginx:
+
+```bash
+docker build --build-arg VITE_API_URL=/api -t payroll-lite-webapp .
+```
+
+For the complete PostgreSQL, API, and web stack, use `compose.yaml` from the sibling
+Payroll Lite API repository. In that setup Nginx proxies `/api` to the API container,
+so browser requests use one origin and do not require a container-specific CORS
+configuration.
+
 ## Configuration
 
 The only V1 frontend variable is:
